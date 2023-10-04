@@ -7,17 +7,17 @@ class Scene{
     }
 
     intersect(ori, dir){
-        let minD = [-1];
+        let intersectP = {};
+        intersectP["flag"] = false;
         let d;
         for (let i=0; i<this.objs.length; i++){
             d = this.objs[i].intersect(ori, dir);
-            if (d[0] > -1) {
-                if (minD[0] === -1) minD = d;
-                else if (d[0] < minD[0]) minD = d;
+            if (d.flag) {
+                if (!intersectP["flag"]) intersectP = d;
+                else if (d.dist < intersectP.dist) intersectP = d;
             }
         }
-        if (minD[0] > -1) return minD;
-        return [-1];
+        return intersectP;
     }
 
     addObj(o){

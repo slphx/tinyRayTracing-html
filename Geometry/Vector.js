@@ -22,7 +22,11 @@ class VecN{
         return this;
     }
     add(v){
-        if (this.n != v.n) throw new Error("长度不相等的向量相加");
+        if (this.n != v.n) {
+            console.log(this, v);
+            throw new Error("长度不相等的向量相加");
+        }
+
         let ret = [];
         for (let i=0; i<this.n; i++){
             ret.push(this.v[i]+v.v[i]);
@@ -38,7 +42,19 @@ class VecN{
         return new VecN(ret);
     }
     dot(v){
-        if (this.n != v.n) throw new Error("长度不相等的向量相点乘");
+        if (typeof(v) === "number") {
+            let ret = [];
+            for (let i=0; i<this.n; i++){
+                ret.push(this.v[i]*v);
+            }
+            return new VecN(ret);
+        }
+        
+        if (this.n != v.n) {
+            console.log(this, v);
+            throw new Error("长度不相等的向量相点乘");
+        }
+
         let ret = 0;
         for (let i=0; i<this.n; i++){
             ret += this.v[i]*v.v[i];

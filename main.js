@@ -17,8 +17,8 @@ canvas.width = width;
 canvas.height = height;
 let imageData = ctx.createImageData(width, height);
 
-const ivory = new Material([0.4, 0.4, 0.3]);
-const red_rubber = new Material([0.3, 0.1, 0.1]);
+const ivory = new Material(new Vec3(0.4, 0.4, 0.3));
+const red_rubber = new Material(new Vec3(0.3, 0.1, 0.1));
 
 function set(x, y, color){
     if (color.type === 'Vec3') color = [color.x(), color.y(), color.z()];
@@ -37,8 +37,9 @@ function render(scene){
             let y = (2*(j+0.5)/height - 1) * Math.tan(fov/2);
             let dir = (new Vec3(x, y, -1)).normalize();
             let intersect = scene.intersect(new Vec3(0,0,0), dir);
-            if (intersect[0] > -1) {
-                set(i, j, intersect[1].diffuse_color);
+            if (intersect["flag"]) {
+                let lightDir = intersect["hit"].sub()
+                set(i, j, intersect["material"].diffuse_color);
             } else set(i, j, [0.2,0.7,0.8]);
         }
     }

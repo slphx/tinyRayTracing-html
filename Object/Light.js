@@ -1,9 +1,14 @@
 
 class Light extends Object{
-    constructor(){
+    position; intensity;
+    constructor(p, i){
         super();
         this.type = 'Light';
+
+        this.position = p;
+        this.intensity = i;
     }
+    
 }
 
 export {Light};
