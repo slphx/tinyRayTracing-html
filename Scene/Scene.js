@@ -1,9 +1,10 @@
 
 class Scene{
-    objs;
+    objs; lights;
 
     constructor(){
         this.objs = [];
+        this.lights = [];
     }
 
     intersect(ori, dir){
@@ -22,6 +23,10 @@ class Scene{
 
     addObj(o){
         this.objs.push(o);
+    }
+    
+    addLight(l){
+        this.lights.push(l);
     }
 }
 

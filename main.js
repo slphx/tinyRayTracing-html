@@ -2,6 +2,7 @@ import { Sphere } from "./Object/Sphere.js";
 import { Vec3 } from "./Geometry/Vector.js";
 import { Scene } from "./Scene/Scene.js";
 import { Material } from "./Material/Material.js";
+import { Light } from "./Object/Light.js";
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext("2d");
@@ -17,11 +18,12 @@ canvas.width = width;
 canvas.height = height;
 let imageData = ctx.createImageData(width, height);
 
-const ivory = new Material(new Vec3(0.4, 0.4, 0.3));
-const red_rubber = new Material(new Vec3(0.3, 0.1, 0.1));
+const ivory = new Material(new Vec3(0.4, 0.4, 0.3), [0.6, 0.3], 50);
+const red_rubber = new Material(new Vec3(0.3, 0.1, 0.1), [0.9, 0.1], 10);
 
 function set(x, y, color){
-    if (color.type === 'Vec3') color = [color.x(), color.y(), color.z()];
+    y = height - y;
+    if (color.type === 'Vec') color = color.v;
     let index = (y*width+x)*4;
     for (let j=0; j<3; j++){
         imageData.data[index+j]=color[j]*255;
@@ -38,8 +40,24 @@ function render(scene){
             let dir = (new Vec3(x, y, -1)).normalize();
             let intersect = scene.intersect(new Vec3(0,0,0), dir);
             if (intersect["flag"]) {
-                let lightDir = intersect["hit"].sub()
-                set(i, j, intersect["material"].diffuse_color);
+                let diffuse_intensity = 0;
+                let specular_intensity = 0;
+                for (let light of scene.lights){
+                    let lightDir = intersect["hit"].sub(light.position).normalize();
+
+                    let lightHit = scene.intersect(light.position, lightDir);
+                    if (lightHit["dist"] < light.position.sub(intersect["hit"]).length() - 1e-4) continue;
+                    
+                    diffuse_intensity += Math.max(0, -lightDir.dot(intersect["N"])) * light.intensity;
+                    
+                    let reflectDir = lightDir.sub(intersect["N"].dot(lightDir.dot(intersect["N"])).dot(2));
+                    specular_intensity += Math.pow(Math.max(0, reflectDir.dot(dir.dot(-1))), intersect["material"].specular_exp) * light.intensity;
+
+                    // specular_intensity += Math.pow(dir.dot(-1).add(lightDir.dot(-1)).normalize().dot(intersect["N"]), intersect["material"].specular_exp+10) * light.intensity;
+                }
+                let diffuse = intersect["material"].diffuse_color.dot(diffuse_intensity).dot(intersect["material"].albedo[0]);
+                let specular = new Vec3(1, 1, 1).dot(specular_intensity).dot(intersect["material"].albedo[1]);
+                set(i, j, diffuse.add(specular));
             } else set(i, j, [0.2,0.7,0.8]);
         }
     }
@@ -52,6 +70,9 @@ function main(){
     scene.addObj(new Sphere(new Vec3( 1.5, -0.5, -18), 3, red_rubber));
     scene.addObj(new Sphere(new Vec3( 7,    5,   -18), 4, ivory));
 
+    scene.addLight(new Light(new Vec3(-20, 20, 20), 1.5));
+    scene.addLight(new Light(new Vec3( 30, 50, -25), 1.8));
+    scene.addLight(new Light(new Vec3( 30, 20,  30), 1.7));
     render(scene);
     
 }

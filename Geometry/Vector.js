@@ -5,7 +5,7 @@ class VecN{
     constructor(v){
         this.v = v;
         this.n = v.length;
-        this.type = 'VecN';
+        this.type = 'Vec';
     }
     length(){
         let sum = 0;
@@ -67,7 +67,7 @@ class Vec3 extends VecN{
     constructor(a, b, c){
         if (a === undefined) super(0, 0, 0);
         else super([a, b, c]);
-        this.type = 'Vec3';
+        this.type = 'Vec';
     }
     x(){
         return this.v[0];
